@@ -82,9 +82,22 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
+###############################################################################
+# TODO                                                                        #
+###############################################################################
+
+# accessibility ->      enable dragging without drag lock
+# dock & menu bar ->    hide dock by default
+# keyboard ->           enable to move focus between controls
+# trackpad ->           swipe between pages -> swipe with 3 fingers
+# trackpad ->           set up right-click to bottom right  
+# displays ->           Scaled for more space
+
+
 # A quick restart so everything goes to plan.
 killall Finder
 killall Dock
+
 
 # We are done now.
 echo "Macbook setup completed!"

@@ -12,6 +12,10 @@ if test ! $(which brew); then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
+#
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/zeo-pleo/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Update homebrew recipes
 brew update
 
@@ -42,6 +46,10 @@ CASKS=(
     brave-browser
     firefox
     alfred
+    discord
+    forklift
+    nvidia-geforce-now
+    
 )
 echo "Installing cask apps..."
 brew install --cask ${CASKS[@]}

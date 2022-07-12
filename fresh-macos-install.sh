@@ -70,6 +70,9 @@ defaults write com.apple.screencapture location ~/Desktop/Screenshots
 # Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)
 defaults write com.apple.screencapture type -string "png"
 
+# Make the Dock appear in an instant, no delay
+defaults write com.apple.dock autohide-delay -float 0; defaults delete com.apple.dock autohide-time-modifier; killall Dock
+
 # Finder: show all filename extensions
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 

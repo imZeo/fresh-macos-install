@@ -64,9 +64,9 @@ echo "Configuring OS..."
 # Show the ~/Library folder
 chflags nohidden ~/Library
 
-# Store screenshots directly on desktop
-mkdir ~/Desktop/Screenshots
-defaults write com.apple.screencapture location ~/Desktop/Screenshots
+# Store screenshots in Documents/Screenshots instead
+mkdir ~/Documents/Screenshots
+defaults write com.apple.screencapture location ~/Documents/Screenshots
 # Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)
 defaults write com.apple.screencapture type -string "png"
 
@@ -77,8 +77,6 @@ defaults write com.apple.dock autohide-delay -float 0; defaults delete com.apple
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
 
-# Set fast key repeat rate
-defaults write NSGlobalDomain KeyRepeat -int 0
 # Show filename extensions by default
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 # Enable tap-to-click

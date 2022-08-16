@@ -4,7 +4,7 @@
 echo "Starting setup"
 
 # install xcode CLI
-xcode-select —-install
+xcode-select --install
 
 # Check for Homebrew to be present, install if it's missing
 if test ! $(which brew); then

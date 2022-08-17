@@ -106,4 +106,4 @@ echo "Macbook setup completed!"
 # Thanks to:
 # https://medium.com/macoclock/automating-your-macos-setup-with-homebrew-and-cask-e2a103b51af1
 # https://github.com/kevinpapst/mac-os-setup/blob/master/settings/macos.sh
-#
+# https://github.com/andersfischernielsen for the inspiration :fish:

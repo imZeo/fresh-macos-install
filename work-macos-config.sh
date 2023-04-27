@@ -53,6 +53,7 @@ CASKS=(
     espanso
     gh
     raycast
+    bartender
 )
 echo "Installing cask apps..."
 brew install --cask ${CASKS[@]}

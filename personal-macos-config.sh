@@ -39,17 +39,17 @@ CASKS=(
     iterm2
     spotify
     visual-studio-code
-    macdown
     rectangle
     caffeine
     todoist
-    brave-browser
     firefox
+    arc
     alfred
     discord
     forklift
     nvidia-geforce-now
-    
+    bartender
+    espanso
 )
 echo "Installing cask apps..."
 brew install --cask ${CASKS[@]}

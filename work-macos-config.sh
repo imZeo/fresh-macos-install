@@ -9,12 +9,12 @@ xcode-select --install
 # Check for Homebrew to be present, install if it's missing
 if test ! $(which brew); then
     echo "Installing homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
 #
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/zeo-pleo/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
+#echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/zeo-pleo/.zprofile
+#eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Update homebrew recipes
 brew update

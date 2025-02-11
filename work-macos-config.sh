@@ -84,6 +84,9 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 # Show filename extensions by default
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
+# Show app switcher on all displays
+defaults write com.apple.Dock appswitcher-all-displays -bool true; killall Dock
+
 # Enable tap-to-click
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1

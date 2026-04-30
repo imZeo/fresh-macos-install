@@ -1,0 +1,7 @@
+# Personal-only installs
+
+# CLI Tools
+brew "exiftool"
+
+# Go tools
+go "github.com/bootdotdev/bootdev"

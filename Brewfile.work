@@ -1,0 +1,52 @@
+# Work-only installs
+
+# Taps
+tap "barracuda-cloudgen-access/tap"
+tap "fluxcd/tap"
+tap "hashicorp/tap"
+tap "localstack/tap"
+
+# CLI Tools
+brew "asdf"
+brew "aws-sso-util"
+brew "awscli"
+brew "exiftool"
+brew "kubectx"
+brew "kubernetes-cli"
+brew "minicom"
+brew "mkcert"
+brew "nss"
+brew "opentofu"
+brew "render"
+brew "watchman"
+brew "barracuda-cloudgen-access/tap/access-cli"
+brew "fluxcd/tap/flux"
+brew "hashicorp/tap/terraform"
+brew "hashicorp/tap/vault"
+brew "localstack/tap/localstack-cli"
+
+# GUI Apps
+cask "1password-cli"
+cask "activitywatch"
+cask "docker-desktop"
+cask "git-credential-manager"
+cask "teamviewer"
+
+# VS Code Extensions
+vscode "amazonwebservices.aws-toolkit-vscode"
+vscode "astro-build.astro-vscode"
+vscode "docker.docker"
+vscode "github.copilot-chat"
+vscode "grapecity.gc-excelviewer"
+vscode "hashicorp.terraform"
+vscode "jasonnutter.vscode-codeowners"
+vscode "llvm-vs-code-extensions.lldb-dap"
+vscode "mathiasfrohlich.kotlin"
+vscode "ms-azuretools.vscode-containers"
+vscode "ms-azuretools.vscode-docker"
+vscode "ms-vscode-remote.remote-containers"
+vscode "ms-vscode-remote.remote-wsl"
+vscode "ms-vsliveshare.vsliveshare"
+vscode "openai.chatgpt"
+vscode "swiftlang.swift-vscode"
+vscode "wekex.jsonlint"

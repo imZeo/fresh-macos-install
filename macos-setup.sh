@@ -34,7 +34,8 @@ fi
 sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 SUDO_PID=$!
-trap "kill $SUDO_PID 2>/dev/null; echo '=== Setup finished at $(date) ===' >> $LOG_FILE" EXIT
+cleanup() { kill "$SUDO_PID" 2>/dev/null; echo "=== Setup finished at $(date) ===" >> "$LOG_FILE"; }
+trap cleanup EXIT
 
 echo "Starting $MODE setup for $LOGGED_IN_USER..."
 

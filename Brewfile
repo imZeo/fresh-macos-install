@@ -4,6 +4,8 @@
 tap "arthur-ficial/tap"
 
 # CLI Tools
+brew "git"
+brew "exiftool"
 brew "fzf"
 brew "ffmpeg"
 brew "gemini-cli"

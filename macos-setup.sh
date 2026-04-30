@@ -58,6 +58,45 @@ brew bundle install --file="$SCRIPT_DIR/Brewfile.$MODE"
 brew cleanup
 
 ###############################################################################
+# Git Config
+###############################################################################
+
+git config --global user.name "imZeo"
+git config --global user.email "ZMCsoltai@gmail.com"
+git config --global init.defaultbranch main
+git config --global push.autosetupremote true
+
+###############################################################################
+# Oh My Zsh
+###############################################################################
+
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+    echo "Installing Oh My Zsh..."
+    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+
+###############################################################################
+# Dotfiles
+###############################################################################
+
+# .zshrc
+[[ -f ~/.zshrc && ! -L ~/.zshrc ]] && cp ~/.zshrc ~/.zshrc.bak
+ln -sf "$SCRIPT_DIR/dotfiles/.zshrc" ~/.zshrc
+
+# nvim
+mkdir -p ~/.config/nvim/lua
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/init.lua" ~/.config/nvim/init.lua
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/lazy-lock.json" ~/.config/nvim/lazy-lock.json
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/config" ~/.config/nvim/lua/config
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/plugins" ~/.config/nvim/lua/plugins
+
+###############################################################################
+# Dev Directories
+###############################################################################
+
+mkdir -p ~/Developer/personal ~/Developer/work
+
+###############################################################################
 # macOS Defaults
 ###############################################################################
 
@@ -111,6 +150,12 @@ defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
 defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+
+# --- Raycast: disable Spotlight Cmd+Space so Raycast can claim it ---
+/usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:64:enabled false" \
+    ~/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
+/usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:65:enabled false" \
+    ~/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
 
 # --- Security ---
 defaults write com.apple.screensaver askForPassword -int 1

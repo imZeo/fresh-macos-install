@@ -103,7 +103,7 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-source /Users/zeo/.config/op/plugins.sh
+source "$HOME/.config/op/plugins.sh"
 
 export PATH="/opt/homebrew/bin:$PATH"
 
@@ -120,7 +120,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # pnpm
-export PNPM_HOME="/Users/zeo/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
@@ -129,7 +129,7 @@ esac
 export PATH=$PATH:$HOME/.maestro/bin
 
 # Added by Antigravity
-export PATH="/Users/zeo/.antigravity/antigravity/bin:$PATH"
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
-alias gam="/Users/zeo/bin/gam7/gam"
+alias gam="$HOME/bin/gam7/gam"

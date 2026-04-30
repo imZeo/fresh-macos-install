@@ -11,7 +11,11 @@ if [[ "$MODE" != "personal" && "$MODE" != "work" ]]; then
     exit 1
 fi
 
-echo "Starting $MODE setup..."
+# Resolve the logged-in console user (safe under sudo)
+LOGGED_IN_USER=$(ls -l /dev/console | awk '{print $3}')
+USER_HOME="/Users/$LOGGED_IN_USER"
+
+echo "Starting $MODE setup for $LOGGED_IN_USER..."
 
 ###############################################################################
 # Xcode CLI Tools
@@ -36,8 +40,8 @@ fi
 # Apple Silicon: set up brew env
 if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
-    if ! grep -q 'brew shellenv' ~/.zprofile 2>/dev/null; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    if ! grep -q 'brew shellenv' $USER_HOME/.zprofile 2>/dev/null; then
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $USER_HOME/.zprofile
     fi
 fi
 
@@ -70,7 +74,7 @@ git config --global push.autosetupremote true
 # Oh My Zsh
 ###############################################################################
 
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+if [[ ! -d "$USER_HOME/.oh-my-zsh" ]]; then
     echo "Installing Oh My Zsh..."
     RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
@@ -80,21 +84,21 @@ fi
 ###############################################################################
 
 # .zshrc
-[[ -f ~/.zshrc && ! -L ~/.zshrc ]] && cp ~/.zshrc ~/.zshrc.bak
-ln -sf "$SCRIPT_DIR/dotfiles/.zshrc" ~/.zshrc
+[[ -f $USER_HOME/.zshrc && ! -L $USER_HOME/.zshrc ]] && cp $USER_HOME/.zshrc $USER_HOME/.zshrc.bak
+ln -sf "$SCRIPT_DIR/dotfiles/.zshrc" $USER_HOME/.zshrc
 
 # nvim
-mkdir -p ~/.config/nvim/lua
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/init.lua" ~/.config/nvim/init.lua
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/lazy-lock.json" ~/.config/nvim/lazy-lock.json
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/config" ~/.config/nvim/lua/config
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/plugins" ~/.config/nvim/lua/plugins
+mkdir -p $USER_HOME/.config/nvim/lua
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/init.lua" $USER_HOME/.config/nvim/init.lua
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/lazy-lock.json" $USER_HOME/.config/nvim/lazy-lock.json
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/config" $USER_HOME/.config/nvim/lua/config
+ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/plugins" $USER_HOME/.config/nvim/lua/plugins
 
 ###############################################################################
 # Dev Directories
 ###############################################################################
 
-mkdir -p ~/Developer/personal ~/Developer/work
+mkdir -p $USER_HOME/Developer/personal $USER_HOME/Developer/work
 
 ###############################################################################
 # macOS Defaults
@@ -103,7 +107,7 @@ mkdir -p ~/Developer/personal ~/Developer/work
 echo "Configuring macOS..."
 
 # --- Finder ---
-chflags nohidden ~/Library
+chflags nohidden $USER_HOME/Library
 defaults write com.apple.finder AppleShowAllFiles -bool true
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write com.apple.finder ShowPathbar -bool true
@@ -118,8 +122,8 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 # --- Screenshots ---
-mkdir -p ~/Documents/Screenshots
-defaults write com.apple.screencapture location ~/Documents/Screenshots
+mkdir -p $USER_HOME/Documents/Screenshots
+defaults write com.apple.screencapture location $USER_HOME/Documents/Screenshots
 defaults write com.apple.screencapture type -string "png"
 
 # --- Dock ---
@@ -153,9 +157,9 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
 
 # --- Raycast: disable Spotlight Cmd+Space so Raycast can claim it ---
 /usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:64:enabled false" \
-    ~/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
+    $USER_HOME/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
 /usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:65:enabled false" \
-    ~/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
+    $USER_HOME/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
 
 # --- Security ---
 defaults write com.apple.screensaver askForPassword -int 1

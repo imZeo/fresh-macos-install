@@ -76,10 +76,10 @@ brew update
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Installing shared packages..."
-brew bundle install --file="$SCRIPT_DIR/Brewfile"
+brew bundle install --file="$SCRIPT_DIR/Brewfile" || echo "⚠️  Some shared packages failed to install — check the log and continue manually."
 
 echo "Installing $MODE packages..."
-brew bundle install --file="$SCRIPT_DIR/Brewfile.$MODE"
+brew bundle install --file="$SCRIPT_DIR/Brewfile.$MODE" || echo "⚠️  Some $MODE packages failed to install — check the log and continue manually."
 
 brew cleanup
 

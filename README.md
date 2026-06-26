@@ -44,10 +44,11 @@ Installs via `brew bundle` from three Brewfiles:
 Sets global config: name, email, default branch (`main`), auto remote setup.
 
 ### macOS Defaults
-- **Finder**: show hidden files, extensions, path/status bar, list view, full path in title, no .DS_Store on network/USB
-- **Dock**: auto-hide (instant), scale minimize effect, no launch animation, app switcher on all displays
-- **Trackpad**: tap-to-click (built-in + Bluetooth), trackpad scaling
-- **Keyboard**: fast key repeat, full keyboard access, press-and-hold disabled (enables proper repeat), autocorrect/autocap/smart punctuation all off
+- **Finder**: show hidden files, extensions, path/status bar, list view (+ purges cached per-folder `.DS_Store` view state so list view actually applies everywhere), full path in title, no .DS_Store on network/USB, sidebar icon size medium
+- **Dock**: auto-hide (instant), scale minimize effect, no launch animation, app switcher on all displays, smallest icon size
+- **Trackpad**: tap-to-click (built-in + Bluetooth), trackpad scaling, secondary click in bottom-right corner, three-finger drag, three-finger swipe between pages, three-finger tap for Look Up/data detectors
+- **Keyboard**: fast key repeat, full keyboard access, press-and-hold disabled (enables proper repeat), autocorrect/autocap/smart punctuation all off, F1/F2/etc. as standard function keys
+- **Input Sources**: Hungarian and Danish keyboard layouts added (alongside default ABC layout)
 - **Screenshots**: saved to `~/Documents/Screenshots`, PNG, no drop shadow
 - **UI**: faster window resize/save/print animations
 - **Security**: screensaver password on wake immediately
@@ -57,6 +58,7 @@ Sets global config: name, email, default branch (`main`), auto remote setup.
 - **TouchID for sudo**: enabled via `/etc/pam.d/sudo_local` (survives macOS updates on Ventura+)
 - **Firewall**: software update auto-check, download, and critical security patches enabled
 - **Power management**: display sleep 30min (plugged), 10min (battery); system sleep never (plugged), 30min (battery)
+- **Hosts file**: backs up `/etc/hosts` to `/etc/hosts.bak`, then replaces it with the [someonewhocares.org](https://someonewhocares.org/hosts/) ad/tracker-blocking hosts file
 
 ### Directories
 Scaffolds `~/Developer/personal` and `~/Developer/work`.
@@ -87,11 +89,17 @@ dotfiles/
 
 ## Manual steps (not automatable)
 
-- **Accessibility**: enable dragging without drag lock
-- **Trackpad**: swipe between pages → 3 fingers; right-click → bottom right corner
 - **Displays**: scaled resolution for more space
 - **Raycast**: assign Cmd+Space in Raycast preferences (Spotlight hotkey is unbound by the script)
 - **espanso**: clone private config repo
+- **ghostty**: config TBD
+- **Browser extensions**: see below
+
+## Browser extensions
+
+Chrome and Arc extensions to install manually (no reliable unattended-install mechanism for either, especially Arc):
+
+- _TODO: fill in extension names/URLs_
 
 ## File structure
 

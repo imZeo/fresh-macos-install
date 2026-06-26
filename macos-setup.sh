@@ -140,6 +140,11 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 
+# Purge cached per-folder view state so list view actually applies everywhere
+# (FXPreferredViewStyle only governs new windows; existing folders override it
+# via their own .DS_Store)
+find "$USER_HOME" -name ".DS_Store" -type f -delete 2>/dev/null || true
+
 # No .DS_Store on network/USB volumes
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
@@ -158,6 +163,10 @@ defaults write com.apple.dock expose-animation-duration -float 0.1
 defaults write com.apple.Dock appswitcher-all-displays -bool true
 defaults write com.apple.dock mineffect -string "scale"
 defaults write com.apple.dock launchanim -bool false
+defaults write com.apple.dock tilesize -int 16  # smallest size available via the UI slider
+
+# --- Finder Appearance ---
+defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2  # sidebar icon size: medium
 
 # --- Trackpad ---
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true  # Bluetooth
@@ -165,11 +174,46 @@ defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true            
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.trackpad.scaling -float 2.5
 
+# Secondary click -> bottom right corner
+defaults write com.apple.AppleMultitouchTrackpad TrackpadCornerSecondaryClick -int 2
+defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
+
+# Use trackpad for dragging (three-finger drag; mutually exclusive with Dragging/DragLock)
+defaults write com.apple.AppleMultitouchTrackpad Dragging -bool false
+defaults write com.apple.AppleMultitouchTrackpad DragLock -bool false
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad DragLock -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool true
+
+# Swipe between pages -> three fingers
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerHorizSwipeGesture -int 1
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerHorizSwipeGesture -int 1
+
+# Look up & data detectors -> three-finger tap
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 2
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerTapGesture -int 2
+
 # --- Keyboard ---
 defaults write NSGlobalDomain KeyRepeat -int 2
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true  # F1, F2, etc. as standard function keys
+
+# --- Input Sources ---
+if ! defaults read com.apple.HIToolbox AppleEnabledInputSources 2>/dev/null | grep -q '"KeyboardLayout ID" = 30763;'; then
+    defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{InputSourceKind = "Keyboard Layout"; "KeyboardLayout ID" = 30763; "KeyboardLayout Name" = Hungarian;}'
+    echo "Added Hungarian input source."
+fi
+if ! defaults read com.apple.HIToolbox AppleEnabledInputSources 2>/dev/null | grep -q '"KeyboardLayout ID" = 9;'; then
+    defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{InputSourceKind = "Keyboard Layout"; "KeyboardLayout ID" = 9; "KeyboardLayout Name" = Danish;}'
+    echo "Added Danish input source."
+fi
 
 # Disable autocorrect annoyances
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
@@ -231,6 +275,15 @@ sudo pmset -b displaysleep 10   # battery: display sleep after 10 min
 sudo pmset -b sleep 30          # battery: sleep after 30 min
 
 ###############################################################################
+# Hosts File (ad/tracker blocking via someonewhocares.org)
+###############################################################################
+
+echo "Updating /etc/hosts..."
+sudo cp /etc/hosts /etc/hosts.bak
+curl -fsSL https://someonewhocares.org/hosts/hosts | sudo tee /etc/hosts >/dev/null
+sudo dscacheutil -flushcache
+
+###############################################################################
 # Restart affected services
 ###############################################################################
 
@@ -241,10 +294,9 @@ echo "$MODE setup complete!"
 
 ###############################################################################
 # Manual TODO (not automatable via defaults)
-# - Accessibility: enable dragging without drag lock
 # - Keyboard: enable focus movement between controls (covered by AppleKeyboardUIMode above)
-# - Trackpad: swipe between pages → 3 fingers
-# - Trackpad: right-click → bottom right corner
 # - Displays: scaled for more space
 # - espanso: clone private config repo
+# - ghostty: config TBD
+# - Browser extensions: see README "Browser extensions" section
 ###############################################################################

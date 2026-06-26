@@ -32,6 +32,7 @@ brew "python@3.14"
 brew "arthur-ficial/tap/apfel"
 
 # GUI Apps
+cask "arc"
 cask "bartender"
 cask "calibre"
 cask "chatgpt"
@@ -42,7 +43,9 @@ cask "forklift"
 cask "obs"
 cask "obsidian"
 cask "raycast"
+cask "spotify"
 cask "steam"
+cask "tailscale"
 cask "todoist-app"
 cask "vlc"
 

@@ -101,13 +101,22 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ensure_brew_bundle() {
-    local label="$1" brewfile="$2"
+    local label="$1" brewfile="$2" status
     if brew bundle check --file="$brewfile" &>/dev/null; then
         echo "$label packages already installed."
     else
         echo "Installing missing $label packages..."
-        brew bundle install --no-upgrade --file="$brewfile" ||
-            echo "⚠️  Some $label packages failed to install — check the log and continue manually."
+        if brew bundle install --no-upgrade --file="$brewfile"; then
+            echo "$label packages installed successfully."
+        else
+            status=$?
+            echo ""
+            echo "⚠️  Homebrew failed while installing $label packages (exit $status)."
+            echo "Unmet dependencies in $brewfile:"
+            brew bundle check --verbose --file="$brewfile" 2>&1 || true
+            echo "Retry with: brew bundle install --no-upgrade --file=\"$brewfile\""
+            echo "Full output is in: $LOG_FILE"
+        fi
     fi
 }
 

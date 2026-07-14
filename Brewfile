@@ -1,8 +1,5 @@
 # Shared — installed on both personal and work machines
 
-# Taps
-tap "arthur-ficial/tap"
-
 # CLI Tools
 brew "git"
 brew "exiftool"
@@ -28,8 +25,6 @@ brew "wget"
 brew "yq"
 brew "python@3.13"
 brew "python@3.14"
-brew "arthur-ficial/tap/apfel"
-
 # GUI Apps
 cask "1password"
 cask "arc"

@@ -22,6 +22,10 @@ chmod +x macos-setup.sh
 The script will prompt for your sudo password once and keep it alive for the duration.
 All output is logged to `~/.setup.log`.
 
+The setup is idempotent: it can be run repeatedly. Existing packages, correct
+symlinks, input sources, and an unchanged hosts file are detected and skipped;
+settings are safely reconciled to the values in the script.
+
 ## What it does
 
 ### System
@@ -44,7 +48,7 @@ Installs via `brew bundle` from three Brewfiles:
 Sets global config: name, email, default branch (`main`), auto remote setup.
 
 ### macOS Defaults
-- **Finder**: show hidden files, extensions, path/status bar, list view (+ purges cached per-folder `.DS_Store` view state so list view actually applies everywhere), full path in title, no .DS_Store on network/USB, sidebar icon size medium
+- **Finder**: show hidden files, extensions, path/status bar, list view, full path in title, no .DS_Store on network/USB, sidebar icon size medium. Cached view state is cleared only at common folder roots, avoiding an unbounded scan of the home directory.
 - **Dock**: auto-hide (instant), scale minimize effect, no launch animation, app switcher on all displays, smallest icon size
 - **Trackpad**: tap-to-click (built-in + Bluetooth), trackpad scaling, secondary click in bottom-right corner, three-finger drag, three-finger swipe between pages, three-finger tap for Look Up/data detectors
 - **Keyboard**: fast key repeat, full keyboard access, press-and-hold disabled (enables proper repeat), autocorrect/autocap/smart punctuation all off, F1/F2/etc. as standard function keys
@@ -58,7 +62,7 @@ Sets global config: name, email, default branch (`main`), auto remote setup.
 - **TouchID for sudo**: enabled via `/etc/pam.d/sudo_local` (survives macOS updates on Ventura+)
 - **Firewall**: software update auto-check, download, and critical security patches enabled
 - **Power management**: display sleep 30min (plugged), 10min (battery); system sleep never (plugged), 30min (battery)
-- **Hosts file**: backs up `/etc/hosts` to `/etc/hosts.bak`, then replaces it with the [someonewhocares.org](https://someonewhocares.org/hosts/) ad/tracker-blocking hosts file
+- **Hosts file**: creates `/etc/hosts.bak` once, then replaces `/etc/hosts` with the [someonewhocares.org](https://someonewhocares.org/hosts/) ad/tracker-blocking hosts file only when its contents changed
 
 ### Directories
 Scaffolds `~/Developer/personal` and `~/Developer/work`.

@@ -11,6 +11,30 @@ if [[ "$MODE" != "personal" && "$MODE" != "work" ]]; then
     exit 1
 fi
 
+step() { printf '\n==> %s\n' "$1"; }
+
+ensure_line() {
+    local line="$1" file="$2"
+    touch "$file"
+    grep -Fqx "$line" "$file" 2>/dev/null || printf '%s\n' "$line" >> "$file"
+}
+
+ensure_symlink() {
+    local source="$1" target="$2" backup
+    if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
+        echo "Already linked: $target"
+        return
+    fi
+    if [[ -e "$target" && ! -L "$target" ]]; then
+        backup="$target.bak"
+        [[ -e "$backup" ]] && backup="$target.bak.$(date +%Y%m%d%H%M%S)"
+        mv "$target" "$backup"
+        echo "Backed up: $target -> $backup"
+    fi
+    ln -sfn "$source" "$target"
+    echo "Linked: $target -> $source"
+}
+
 # Resolve the logged-in console user (safe under sudo)
 LOGGED_IN_USER=$(ls -l /dev/console | awk '{print $3}')
 USER_HOME="/Users/$LOGGED_IN_USER"
@@ -34,7 +58,12 @@ fi
 sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 SUDO_PID=$!
-cleanup() { kill "$SUDO_PID" 2>/dev/null; echo "=== Setup finished at $(date) ===" >> "$LOG_FILE"; }
+HOSTS_DOWNLOAD=""
+cleanup() {
+    kill "$SUDO_PID" 2>/dev/null || true
+    [[ -z "$HOSTS_DOWNLOAD" ]] || rm -f "$HOSTS_DOWNLOAD"
+    echo "=== Setup finished at $(date) ===" >> "$LOG_FILE"
+}
 trap cleanup EXIT
 
 echo "Starting $MODE setup for $LOGGED_IN_USER..."
@@ -62,12 +91,8 @@ fi
 # Apple Silicon: set up brew env
 if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
-    if ! grep -q 'brew shellenv' $USER_HOME/.zprofile 2>/dev/null; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $USER_HOME/.zprofile
-    fi
+    ensure_line 'eval "$(/opt/homebrew/bin/brew shellenv)"' "$USER_HOME/.zprofile"
 fi
-
-brew update
 
 ###############################################################################
 # Install packages via Brewfiles
@@ -75,13 +100,19 @@ brew update
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "Installing shared packages..."
-brew bundle install --file="$SCRIPT_DIR/Brewfile" || echo "⚠️  Some shared packages failed to install — check the log and continue manually."
+ensure_brew_bundle() {
+    local label="$1" brewfile="$2"
+    if brew bundle check --file="$brewfile" &>/dev/null; then
+        echo "$label packages already installed."
+    else
+        echo "Installing missing $label packages..."
+        brew bundle install --no-upgrade --file="$brewfile" ||
+            echo "⚠️  Some $label packages failed to install — check the log and continue manually."
+    fi
+}
 
-echo "Installing $MODE packages..."
-brew bundle install --file="$SCRIPT_DIR/Brewfile.$MODE" || echo "⚠️  Some $MODE packages failed to install — check the log and continue manually."
-
-brew cleanup
+ensure_brew_bundle shared "$SCRIPT_DIR/Brewfile"
+ensure_brew_bundle "$MODE" "$SCRIPT_DIR/Brewfile.$MODE"
 
 ###############################################################################
 # Git Config
@@ -106,15 +137,14 @@ fi
 ###############################################################################
 
 # .zshrc
-[[ -f $USER_HOME/.zshrc && ! -L $USER_HOME/.zshrc ]] && cp $USER_HOME/.zshrc $USER_HOME/.zshrc.bak
-ln -sf "$SCRIPT_DIR/dotfiles/.zshrc" $USER_HOME/.zshrc
+ensure_symlink "$SCRIPT_DIR/dotfiles/.zshrc" "$USER_HOME/.zshrc"
 
 # nvim
 mkdir -p $USER_HOME/.config/nvim/lua
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/init.lua" $USER_HOME/.config/nvim/init.lua
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/lazy-lock.json" $USER_HOME/.config/nvim/lazy-lock.json
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/config" $USER_HOME/.config/nvim/lua/config
-ln -sf "$SCRIPT_DIR/dotfiles/nvim/lua/plugins" $USER_HOME/.config/nvim/lua/plugins
+ensure_symlink "$SCRIPT_DIR/dotfiles/nvim/init.lua" "$USER_HOME/.config/nvim/init.lua"
+ensure_symlink "$SCRIPT_DIR/dotfiles/nvim/lazy-lock.json" "$USER_HOME/.config/nvim/lazy-lock.json"
+ensure_symlink "$SCRIPT_DIR/dotfiles/nvim/lua/config" "$USER_HOME/.config/nvim/lua/config"
+ensure_symlink "$SCRIPT_DIR/dotfiles/nvim/lua/plugins" "$USER_HOME/.config/nvim/lua/plugins"
 
 ###############################################################################
 # Dev Directories
@@ -126,7 +156,7 @@ mkdir -p $USER_HOME/Developer/personal $USER_HOME/Developer/work
 # macOS Defaults
 ###############################################################################
 
-echo "Configuring macOS..."
+step "Configuring macOS"
 
 # --- Finder ---
 chflags nohidden $USER_HOME/Library
@@ -140,10 +170,11 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 
-# Purge cached per-folder view state so list view actually applies everywhere
-# (FXPreferredViewStyle only governs new windows; existing folders override it
-# via their own .DS_Store)
-find "$USER_HOME" -name ".DS_Store" -type f -delete 2>/dev/null || true
+# Reset Finder state only at common folder roots. A recursive scan of $HOME can
+# block for a long time in Library, CloudStorage, and large development trees.
+for folder in "$USER_HOME" "$USER_HOME/Desktop" "$USER_HOME/Documents" "$USER_HOME/Downloads"; do
+    [[ -d "$folder" ]] && rm -f "$folder/.DS_Store"
+done
 
 # No .DS_Store on network/USB volumes
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
@@ -278,17 +309,29 @@ sudo pmset -b sleep 30          # battery: sleep after 30 min
 # Hosts File (ad/tracker blocking via someonewhocares.org)
 ###############################################################################
 
-echo "Updating /etc/hosts..."
-sudo cp /etc/hosts /etc/hosts.bak
-curl -fsSL https://someonewhocares.org/hosts/hosts | sudo tee /etc/hosts >/dev/null
-sudo dscacheutil -flushcache
+step "Updating /etc/hosts"
+HOSTS_DOWNLOAD=$(mktemp)
+if curl -fsSL https://someonewhocares.org/hosts/hosts -o "$HOSTS_DOWNLOAD"; then
+    if cmp -s "$HOSTS_DOWNLOAD" /etc/hosts; then
+        echo "/etc/hosts is already current."
+    else
+        [[ -f /etc/hosts.bak ]] || sudo cp /etc/hosts /etc/hosts.bak
+        sudo install -m 644 "$HOSTS_DOWNLOAD" /etc/hosts
+        sudo dscacheutil -flushcache
+        echo "/etc/hosts updated."
+    fi
+else
+    echo "⚠️  Could not download the hosts list; keeping the existing /etc/hosts."
+fi
+rm -f "$HOSTS_DOWNLOAD"
+HOSTS_DOWNLOAD=""
 
 ###############################################################################
 # Restart affected services
 ###############################################################################
 
-killall Finder
-killall Dock
+killall Finder 2>/dev/null || true
+killall Dock 2>/dev/null || true
 
 echo "$MODE setup complete!"
 
